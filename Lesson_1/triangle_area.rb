@@ -1,8 +1,8 @@
 puts("Введите длину основания треугольника:")
-a=gets.chomp.to_i
+a = gets.chomp.to_i
 
 puts("Введите высоту треугольника:")
-h=gets.chomp.to_i
+h = gets.chomp.to_i
 
-s=a*h/2.00
+s= (a * h)/2.00
 puts "Площадь треугольника: #{s}"
