@@ -1,7 +1,7 @@
-puts("Как тебя зовут?")
+puts "Как тебя зовут?"
 name = gets.chomp
 
-puts("Какой у тебя рост?")
+puts "Какой у тебя рост?"
 growth = gets.chomp.to_i
 
 weight = (growth - 110) * 1.15

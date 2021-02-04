@@ -1,10 +1,10 @@
-puts("Введите длину 1 стороны:")
+puts "Введите длину 1 стороны:"
 side1 = gets.chomp.to_i
 
-puts("Введите длину 2 стороны:")
+puts "Введите длину 2 стороны:"
 side2 = gets.chomp.to_i
 
-puts("Введите длину 3 стороны:")
+puts "Введите длину 3 стороны:"
 side3 = gets.chomp.to_i
 
 a, b, max = [side1, side2, side3].sort
