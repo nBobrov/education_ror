@@ -1,4 +1,4 @@
-purchases = Hash[]
+purchases = {}
 total_sum = 0
 
 loop do
