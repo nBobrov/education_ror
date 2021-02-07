@@ -1,4 +1,4 @@
-vowels_arr = ['a', 'e', 'i', 'o', 'u']
+vowels_arr = %w[a e i o u]
 num = 0
 hash = {}
 
