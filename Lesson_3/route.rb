@@ -1,21 +1,29 @@
-#Класс Route (Маршрут):
-#Имеет начальную и конечную станцию, а также список промежуточных станций. Начальная и конечная станции указываютсся при создании маршрута, а промежуточные могут добавляться между ними.
-#Может добавлять промежуточную станцию в список
-#Может удалять промежуточную станцию из списка
-#Может выводить список всех станций по-порядку от начальной до конечной
-
 class Route
-  attr_reader :route
+  attr_reader :list
 
   def initialize(departure, arrival)
-    @route = [departure, arrival]
+    @initial_list = [departure, arrival]
+    @list = []
+
+    @list << Station.new(departure)
+    @list << Station.new(arrival)
   end
 
   def add(transit)
-    puts "send!"
+    if !@list.find { |station| station.name == transit }
+      @list << @list[-1]
+      @list[-2] = Station.new(transit)
+    else
+      puts 'Указанная станции уже имеется в маршруте'
+    end
   end
 
   def delete(transit)
-    puts "take"
+    if @initial_list.include? transit
+      puts 'Удаление начальной и конечной станции невозможно'
+    else
+      station = @list.find { |station| station.name == transit }
+      @list.delete(station)
+    end
   end
 end

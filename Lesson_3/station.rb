@@ -1,24 +1,26 @@
-#Класс Station (Станция):
-#Имеет название, которое указывается при ее создании
-#Может принимать поезда (по одному за раз)
-#Может возвращать список всех поездов на станции, находящиеся в текущий момент
-#Может возвращать список поездов на станции по типу (см. ниже): кол-во грузовых, пассажирских
-#Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов, находящихся на станции).
-
 class Station
+  attr_reader :name, :trains
+
   def initialize(name)
     @name = name
+    @trains = []
   end
 
-  def send(number = '')
-    puts "send!"
+  def take(train_arriving)
+    if !@trains.find { |train| train.number == train_arriving.number }
+      @trains << train_arriving
+    else
+      puts 'Указанный поезд уже прибыл на станцию'
+    end
   end
 
-  def take(number = '')
-    puts "take"
+  def send(train_departing)
+    train = @trains.find { |train| train.number == train_departing.number  }
+    @trains.delete(train)
   end
 
-  def show(train_type = '')
-    puts "take"
+  def trains_search(type_search = '')
+    @trains_search = @trains
+    @trains_search = @trains.select { |train| train.type == type_search } if type_search != ''
   end
 end
