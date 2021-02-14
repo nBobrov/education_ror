@@ -19,8 +19,7 @@ class Station
     @trains.delete(train)
   end
 
-  def trains_search(type_search = '')
-    @trains_search = @trains
-    @trains_search = @trains.select { |train| train.type == type_search } if type_search != ''
+  def trains_search(type_search)
+    @trains_search = @trains.select { |train| train.type == type_search }
   end
 end
