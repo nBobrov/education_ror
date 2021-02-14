@@ -59,7 +59,7 @@ class Train
   end
 
   def station_next
-    @route.list[@station_index + 1] if @station_index + 1 < @route.list.size - 1
+    @route.list[@station_index + 1] if @station_index + 1 < @route.list.size
   end
 
   def station_prev
