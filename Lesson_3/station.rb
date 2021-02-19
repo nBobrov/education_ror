@@ -15,11 +15,10 @@ class Station
   end
 
   def send(train_departing)
-    train = @trains.find { |train| train.number == train_departing.number  }
-    @trains.delete(train)
+    @trains.delete(train_departing)
   end
 
   def trains_search(type_search)
-    @trains_search = @trains.select { |train| train.type == type_search }
+    @trains_search = @trains.select { |train| train.type.downcase == type_search.downcase }
   end
 end
