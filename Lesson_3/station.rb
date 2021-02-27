@@ -1,17 +1,29 @@
+require_relative 'instance_counter'
+
 class Station
+  include InstanceCounter
+
   attr_reader :name, :trains
+
+  @@all = []
 
   def initialize(name)
     @name = name
     @trains = []
+    register_instance
+    @@all << self
+  end
+
+  def self.all
+    @@all
   end
 
   def take(train_arriving)
-    if !@trains.find { |train| train.number == train_arriving.number }
-      @trains << train_arriving
-    else
-      puts 'Указанный поезд уже прибыл на станцию'
-    end
+    @trains << train_arriving unless exists?(train_arriving)
+  end
+
+  def exists?(train_arriving)
+    true if @trains.find { |train| train.number == train_arriving.number }
   end
 
   def send(train_departing)

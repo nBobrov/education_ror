@@ -14,7 +14,7 @@ class App
     @trains = []
     @routes = []
 
-    #seed
+    seed
     main_menu
   end
 
@@ -68,7 +68,7 @@ class App
     end
   end
 
-  private # private, т.к. методы не должны быть доступны из вне
+  private
 
   def menu_train_add
     puts 'Какой поезд хотите создать?'
@@ -88,7 +88,7 @@ class App
 
   def menu_station_add
     puts 'Введите название новой станции:'
-    @stations << Station.new(gets.chomp)
+    Station.new(gets.chomp)
   end
 
   def menu_route
@@ -126,7 +126,11 @@ class App
     puts 'Укажиете стацию:'
     station = @stations[gets.chomp.to_i]
 
-    route.add(station)
+    if route.exists?(station)
+      puts 'Указанная станции уже имеется в маршруте'
+    else
+      route.add(station)
+    end
   end
 
   def menu_route_station_delete
@@ -139,7 +143,11 @@ class App
     puts 'Укажиете стацию:'
     station = @stations[gets.chomp.to_i]
 
-    route.delete(station)
+    if route.transit?(station)
+      route.delete(station)
+    else
+      puts 'Удаление начальной и конечной станции невозможно'
+    end
   end
 
   def menu_train_route_assign
@@ -159,15 +167,21 @@ class App
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
 
-    case
-    when train.type == 'Пассажирский'
+    if !train.train_stopped?
+      puts 'Прицепка вагонов может осуществляться только если поезд не движется.'
+    else
       puts 'Введите номер вагона'
       wagon_number = gets.chomp
-      train.wagon_plus(PassWagon.new(wagon_number))
-    when train.type == 'Грузовой'
-      puts 'Введите номер вагона'
-      wagon_number = gets.chomp
-      train.wagon_plus(CargoWagon.new(wagon_number))
+      if train.wagon_exists?(wagon_number)
+        puts 'Указанный вагон уже прицеплен к поезду'\
+      else
+        case
+        when train.type == 'Пассажирский'
+          train.wagon_plus(PassWagon.new(wagon_number))
+        when train.type == 'Грузовой'
+          train.wagon_plus(CargoWagon.new(wagon_number))
+        end
+      end
     end
   end
 
@@ -178,13 +192,18 @@ class App
 
     i = 0
     train.wagons.each do |wagon|
-      puts "#{i} - #{wagon.number}"
+      puts "#{i} - #{wagon.number} (#{wagon.company_name})"
       i += 1
     end
     puts 'Выберите вагон:'
     wagon = train.wagons[gets.chomp.to_i]
 
-    train.wagon_minus(wagon)
+
+    if train.train_stopped?
+      train.wagon_minus(wagon)
+    else
+      puts 'Отцепка вагонов может осуществляться только если поезд не движется.'
+    end
 
   end
 
@@ -209,7 +228,7 @@ class App
   def trains_list (trains)
     i = 0
     trains.each do |train|
-      puts "#{i} - #{train.type} поезд: #{train.number}"
+      puts "#{i} - #{train.type} поезд: #{train.number} (#{train.company_name})"
       i += 1
     end
   end
@@ -248,12 +267,20 @@ class App
     submenu = gets.chomp.to_i
     case
     when submenu == 1
-      train.transfer_forward
+      if !train.station_next
+        puts 'Поезд находится на конечной станции'
+      else
+        train.transfer_forward
+        puts "Поезд прибыл на станцию: #{train.station_current.name}"
+      end
     when submenu == 2
-      train.transfer_back
+      if !train.station_prev
+        puts 'Поезд находится на конечной станции'
+      else
+        train.transfer_back
+        puts "Поезд прибыл на станцию: #{train.station_current.name}"
+      end
     end
-
-    puts "Поезд прибыл на станцию: #{train.station_current.name}"
   end
 
   def seed
@@ -266,6 +293,12 @@ class App
     @trains << CargoTrain.new('Поезд Г-1')
     @trains << PassengerTrain.new('Номер П-1')
 
+
+    @trains[0].company_name = 'Siemens Velaro'
+    @trains[1].company_name = 'Maglev'
+
+    @trains[1].speed = 1000
+
     @routes << Route.new(@stations[0], @stations[4])
     @routes[0].add(@stations[1])
     @routes[0].add(@stations[2])
@@ -276,9 +309,11 @@ class App
     @trains[0].assign_route(@routes[0])
     @trains[1].assign_route(@routes[0])
 
-
     @trains[0].wagon_plus(CargoWagon.new('Вагон Г-1'))
     @trains[0].wagon_plus(CargoWagon.new('Вагон Г-2'))
+
+    @trains[0].wagons[0].company_name = 'Shinkansen'
+    @trains[0].wagons[1].company_name = 'Shinkansen'
 
     @trains[1].wagon_plus(PassWagon.new('Вагон П-1'))
     @trains[1].wagon_plus(PassWagon.new('Вагон П-2'))

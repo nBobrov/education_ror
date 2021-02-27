@@ -1,13 +1,28 @@
+require_relative 'manufacturer'
+require_relative 'instance_counter'
+
 class Train
+  include Manufacturer
+  include InstanceCounter
+
   attr_accessor :speed
 
   attr_reader :number, :type, :wagons
 
+  class << self
+    def find(number)
+      Train.all.select { |train| train.number.downcase == number.downcase }
+    end
+  end
+
   def initialize(number)
+
     @number = number
-    @type = initial_type
+    @type = self.class::INITIAL_TYPE
     @speed = 0
     @wagons = []
+    @company_name = Manufacturer::INITIAL_COMPANY_NAME
+    register_instance
   end
 
   def stop
@@ -15,23 +30,19 @@ class Train
   end
 
   def wagon_plus(wagon_new)
-    if @type != wagon_new.type
-      puts 'Тип поезда не соответствует типу вагона. К пассажирскому поезду можно прицепить только пассажирские, к грузовому - грузовые.'
-    elsif !train_stopped?
-      puts 'Прицепка вагонов может осуществляться только если поезд не движется.'
-    elsif @wagons.find { |wagon| wagon.number == wagon_new.number }
-      puts 'Указанный вагон уже прицеплен к поезду'
-    else
-      @wagons << wagon_new
-    end
+    @wagons << wagon_new if train_stopped? && check_type?(wagon_new) && !wagon_exists?(wagon_new.number)
+  end
+
+  def wagon_exists?(wagon_new_number)
+    true if @wagons.find { |wagon| wagon.number == wagon_new_number }
+  end
+
+  def check_type?(wagon)
+    true if @type = wagon.type
   end
 
   def wagon_minus(wagon)
-    if !train_stopped?
-      puts 'Отцепка вагонов может осуществляться только если поезд не движется.'
-    else
-      @wagons.delete(wagon)
-    end
+    @wagons.delete(wagon) if train_stopped?
   end
 
   def assign_route(route)
