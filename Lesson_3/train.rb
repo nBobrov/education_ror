@@ -1,9 +1,13 @@
 require_relative 'manufacturer'
 require_relative 'instance_counter'
+require_relative 'validation'
 
 class Train
   include Manufacturer
   include InstanceCounter
+  include Validation
+
+  NUMBER_FORMAT = /^[a-zа-я\d]{3}-?[a-zа-я\d]{2}$/i
 
   attr_accessor :speed
 
@@ -23,6 +27,7 @@ class Train
     @wagons = []
     @company_name = Manufacturer::INITIAL_COMPANY_NAME
     register_instance
+    validate!
   end
 
   def stop
@@ -30,19 +35,29 @@ class Train
   end
 
   def wagon_plus(wagon_new)
-    @wagons << wagon_new if train_stopped? && check_type?(wagon_new) && !wagon_exists?(wagon_new.number)
+    wagon_exists!(wagon_new.number)
+    check_type!(wagon_new)
+    train_stopped!
+    @wagons << wagon_new
   end
 
   def wagon_exists?(wagon_new_number)
-    true if @wagons.find { |wagon| wagon.number == wagon_new_number }
+    wagon_exists!(wagon_new_number)
+    true
+  rescue
+    false
   end
 
   def check_type?(wagon)
-    true if @type = wagon.type
+    check_type!(wagon)
+    true
+  rescue
+    false
   end
 
   def wagon_minus(wagon)
-    @wagons.delete(wagon) if train_stopped?
+    train_stopped!
+    @wagons.delete(wagon)
   end
 
   def assign_route(route)
@@ -52,7 +67,7 @@ class Train
   end
 
   def transfer_forward
-    return unless station_next?
+    station_next!
 
     station_current.send(self)
     @station_index += 1
@@ -60,7 +75,7 @@ class Train
   end
 
   def transfer_back
-    return unless station_prev?
+    station_prev!
 
     station_current.send(self)
     @station_index -= 1
@@ -80,7 +95,10 @@ class Train
   end
 
   def train_stopped?
-    @speed.zero?
+    train_stopped!
+    true
+  rescue
+    false
   end
 
   def station_next?
@@ -89,5 +107,31 @@ class Train
 
   def station_prev?
     @station_index.positive?
+  end
+
+  private
+
+  def validate!
+    raise ArgumentError, 'Неверный формат номера' if number !~ NUMBER_FORMAT
+  end
+
+  def wagon_exists!(wagon_new_number)
+    raise ArgumentError, 'Указанный вагон уже прицеплен к поезду' if wagons.find { |wagon| wagon.number == wagon_new_number }
+  end
+
+  def check_type!(wagon)
+    raise ArgumentError, 'Тип вагона не соответствует типу поезда' if type != wagon.type
+  end
+
+  def train_stopped!
+    raise ArgumentError, 'Прицепка и отцепка вагонов может осуществляться только если поезд не движется' unless speed.zero?
+  end
+
+  def station_next!
+    raise ArgumentError, 'Поезд находится на конечной станции' if @station_index + 1 == @route.list.size
+  end
+
+  def station_prev!
+    raise ArgumentError, 'Поезд находится на конечной станции' if @station_index.zero?
   end
 end

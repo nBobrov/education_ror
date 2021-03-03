@@ -14,7 +14,7 @@ class App
     @trains = []
     @routes = []
 
-    seed
+    #seed
     main_menu
   end
 
@@ -71,6 +71,7 @@ class App
   private
 
   def menu_train_add
+    retry_counter ||= 0
     puts 'Какой поезд хотите создать?'
     puts ' 1 - Пассажирский'
     puts ' 2 - Грузовой'
@@ -84,11 +85,24 @@ class App
       puts 'Введите номер поезда'
       @trains << CargoTrain.new(gets.chomp)
     end
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
+    end
   end
 
   def menu_station_add
+    retry_counter ||= 0
     puts 'Введите название новой станции:'
-    Station.new(gets.chomp)
+    @stations << Station.new(gets.chomp)
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
+    end
   end
 
   def menu_route
@@ -108,6 +122,7 @@ class App
   end
 
   def menu_route_add
+    retry_counter ||= 0
     menu_stations_list
 
     puts 'Введите название начальной станции маршрута:'
@@ -115,9 +130,16 @@ class App
     puts 'Введите название конечной станции маршрута:'
     station_end = @stations[gets.chomp.to_i]
     @routes << Route.new(station_start, station_end)
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
+    end
   end
 
   def menu_route_station_add
+    retry_counter ||= 0
     menu_routes_list
     puts 'Укажиете маршрут:'
     route = @routes[gets.chomp.to_i]
@@ -126,14 +148,18 @@ class App
     puts 'Укажиете стацию:'
     station = @stations[gets.chomp.to_i]
 
-    if route.exists?(station)
-      puts 'Указанная станции уже имеется в маршруте'
-    else
-      route.add(station)
+    route.add(station)
+
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
     end
   end
 
   def menu_route_station_delete
+    retry_counter ||= 0
     menu_routes_list
     puts 'Укажиете маршрут:'
     route = @routes[gets.chomp.to_i]
@@ -143,10 +169,12 @@ class App
     puts 'Укажиете стацию:'
     station = @stations[gets.chomp.to_i]
 
-    if route.transit?(station)
-      route.delete(station)
-    else
-      puts 'Удаление начальной и конечной станции невозможно'
+    route.delete(station)
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
     end
   end
 
@@ -163,29 +191,31 @@ class App
   end
 
   def menu_train_wagon_add
+    retry_counter ||= 0
     menu_trains_list
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
 
-    if !train.train_stopped?
-      puts 'Прицепка вагонов может осуществляться только если поезд не движется.'
-    else
-      puts 'Введите номер вагона'
-      wagon_number = gets.chomp
-      if train.wagon_exists?(wagon_number)
-        puts 'Указанный вагон уже прицеплен к поезду'\
-      else
-        case
-        when train.type == 'Пассажирский'
-          train.wagon_plus(PassWagon.new(wagon_number))
-        when train.type == 'Грузовой'
-          train.wagon_plus(CargoWagon.new(wagon_number))
-        end
-      end
+    puts 'Введите номер вагона'
+    wagon_number = gets.chomp
+
+    case
+    when train.type == 'Пассажирский'
+      train.wagon_plus(PassWagon.new(wagon_number))
+    when train.type == 'Грузовой'
+      train.wagon_plus(CargoWagon.new(wagon_number))
+    end
+
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
     end
   end
 
   def menu_train_wagon_delete
+    retry_counter ||= 0
     menu_trains_list
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
@@ -198,13 +228,14 @@ class App
     puts 'Выберите вагон:'
     wagon = train.wagons[gets.chomp.to_i]
 
+    train.wagon_minus(wagon)
 
-    if train.train_stopped?
-      train.wagon_minus(wagon)
-    else
-      puts 'Отцепка вагонов может осуществляться только если поезд не движется.'
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
     end
-
   end
 
   def menu_stations_list
@@ -255,6 +286,7 @@ class App
   end
 
   def menu_train_transfer
+    retry_counter ||= 0
     menu_trains_list
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
@@ -267,20 +299,27 @@ class App
     submenu = gets.chomp.to_i
     case
     when submenu == 1
-      if !train.station_next
-        puts 'Поезд находится на конечной станции'
-      else
-        train.transfer_forward
-        puts "Поезд прибыл на станцию: #{train.station_current.name}"
-      end
+      train.transfer_forward
+      puts "Поезд прибыл на станцию: #{train.station_current.name}"
     when submenu == 2
-      if !train.station_prev
-        puts 'Поезд находится на конечной станции'
-      else
-        train.transfer_back
-        puts "Поезд прибыл на станцию: #{train.station_current.name}"
-      end
+      train.transfer_back
+      puts "Поезд прибыл на станцию: #{train.station_current.name}"
     end
+  rescue ArgumentError => e
+    puts e.message
+    if retry_input?(retry_counter, 3)
+      retry_counter = retry_input(retry_counter, 3)
+      retry
+    end
+  end
+
+  def retry_input(counter, limit)
+    puts "Повторите попытку! Попыток осталось: #{limit-counter}"
+    counter += 1
+  end
+
+  def retry_input?(counter, limit)
+    counter < limit
   end
 
   def seed
@@ -290,14 +329,14 @@ class App
     @stations << Station.new('Топи')
     @stations << Station.new('Симферополь')
 
-    @trains << CargoTrain.new('Поезд Г-1')
-    @trains << PassengerTrain.new('Номер П-1')
+    @trains << CargoTrain.new('PPГ-01')
+    @trains << PassengerTrain.new('PPП01')
 
 
     @trains[0].company_name = 'Siemens Velaro'
     @trains[1].company_name = 'Maglev'
 
-    @trains[1].speed = 1000
+    #@trains[1].speed = 1000
 
     @routes << Route.new(@stations[0], @stations[4])
     @routes[0].add(@stations[1])
@@ -309,15 +348,15 @@ class App
     @trains[0].assign_route(@routes[0])
     @trains[1].assign_route(@routes[0])
 
-    @trains[0].wagon_plus(CargoWagon.new('Вагон Г-1'))
-    @trains[0].wagon_plus(CargoWagon.new('Вагон Г-2'))
+    @trains[0].wagon_plus(CargoWagon.new('Ваг-Г1'))
+    @trains[0].wagon_plus(CargoWagon.new('Ваг-Г2'))
 
     @trains[0].wagons[0].company_name = 'Shinkansen'
     @trains[0].wagons[1].company_name = 'Shinkansen'
 
-    @trains[1].wagon_plus(PassWagon.new('Вагон П-1'))
-    @trains[1].wagon_plus(PassWagon.new('Вагон П-2'))
-    @trains[1].wagon_plus(PassWagon.new('Вагон П-3'))
+    @trains[1].wagon_plus(PassWagon.new('VaG-P1'))
+    @trains[1].wagon_plus(PassWagon.new('VaG-P2'))
+    @trains[1].wagon_plus(PassWagon.new('Ваг-P1'))
   end
 end
 
