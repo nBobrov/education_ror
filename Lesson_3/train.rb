@@ -26,8 +26,8 @@ class Train
     @speed = 0
     @wagons = []
     @company_name = Manufacturer::INITIAL_COMPANY_NAME
-    register_instance
     validate!
+    register_instance
   end
 
   def stop
@@ -35,29 +35,19 @@ class Train
   end
 
   def wagon_plus(wagon_new)
-    wagon_exists!(wagon_new.number)
-    check_type!(wagon_new)
-    train_stopped!
-    @wagons << wagon_new
+    @wagons << wagon_new if train_stopped? && check_type?(wagon_new) && !wagon_exists?(wagon_new.number)
   end
 
   def wagon_exists?(wagon_new_number)
-    wagon_exists!(wagon_new_number)
-    true
-  rescue
-    false
+    true if @wagons.find { |wagon| wagon.number == wagon_new_number }
   end
 
   def check_type?(wagon)
-    check_type!(wagon)
-    true
-  rescue
-    false
+    true if @type = wagon.type
   end
 
   def wagon_minus(wagon)
-    train_stopped!
-    @wagons.delete(wagon)
+    @wagons.delete(wagon) if train_stopped?
   end
 
   def assign_route(route)
@@ -67,7 +57,7 @@ class Train
   end
 
   def transfer_forward
-    station_next!
+    return unless station_next?
 
     station_current.send(self)
     @station_index += 1
@@ -75,7 +65,7 @@ class Train
   end
 
   def transfer_back
-    station_prev!
+    return unless station_prev?
 
     station_current.send(self)
     @station_index -= 1
@@ -95,10 +85,7 @@ class Train
   end
 
   def train_stopped?
-    train_stopped!
-    true
-  rescue
-    false
+    @speed.zero?
   end
 
   def station_next?
@@ -113,25 +100,5 @@ class Train
 
   def validate!
     raise ArgumentError, 'Неверный формат номера' if number !~ NUMBER_FORMAT
-  end
-
-  def wagon_exists!(wagon_new_number)
-    raise ArgumentError, 'Указанный вагон уже прицеплен к поезду' if wagons.find { |wagon| wagon.number == wagon_new_number }
-  end
-
-  def check_type!(wagon)
-    raise ArgumentError, 'Тип вагона не соответствует типу поезда' if type != wagon.type
-  end
-
-  def train_stopped!
-    raise ArgumentError, 'Прицепка и отцепка вагонов может осуществляться только если поезд не движется' unless speed.zero?
-  end
-
-  def station_next!
-    raise ArgumentError, 'Поезд находится на конечной станции' if @station_index + 1 == @route.list.size
-  end
-
-  def station_prev!
-    raise ArgumentError, 'Поезд находится на конечной станции' if @station_index.zero?
   end
 end
