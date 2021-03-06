@@ -39,6 +39,10 @@ class Station
     @trains_search = @trains.select { |train| train.type.downcase == type_search.downcase }
   end
 
+  def send_train_to_block(&block)
+    @trains.each(&block) if block_given?
+  end
+
   private
 
   def validate!

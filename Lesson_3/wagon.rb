@@ -13,7 +13,6 @@ class Wagon
     @number = number
     @type = self.class::INITIAL_TYPE
     @company_name = Manufacturer::INITIAL_COMPANY_NAME
-    validate!
   end
 
   private

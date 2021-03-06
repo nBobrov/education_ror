@@ -96,6 +96,10 @@ class Train
     @station_index.positive?
   end
 
+  def send_wagon_to_block(&block)
+    @wagons.each(&block) if block_given?
+  end
+
   private
 
   def validate!
