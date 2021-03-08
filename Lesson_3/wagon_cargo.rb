@@ -1,5 +1,4 @@
 class CargoWagon < Wagon
-
   attr_reader :capacity, :available_capacity, :occupied_capacity
 
   def initialize(number, capacity)
@@ -23,8 +22,8 @@ class CargoWagon < Wagon
 
   private
 
-  INITIAL_TYPE = 'Грузовой'
-  CAPACITY_FORMAT = /^[1-9][0-9]{0,}$/
+  INITIAL_TYPE = 'Грузовой'.freeze
+  CAPACITY_FORMAT = /^[1-9][0-9]*$/.freeze
 
   attr_writer :available_capacity, :occupied_capacity
 

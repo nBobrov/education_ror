@@ -7,10 +7,9 @@ class Train
   include InstanceCounter
   include Validation
 
-  NUMBER_FORMAT = /^[a-zа-я\d]{3}-?[a-zа-я\d]{2}$/i
+  NUMBER_FORMAT = /^[a-zа-я\d]{3}-?[a-zа-я\d]{2}$/i.freeze
 
   attr_accessor :speed
-
   attr_reader :number, :type, :wagons
 
   class << self
@@ -20,7 +19,6 @@ class Train
   end
 
   def initialize(number)
-
     @number = number
     @type = self.class::INITIAL_TYPE
     @speed = 0
@@ -43,7 +41,7 @@ class Train
   end
 
   def check_type?(wagon)
-    true if @type = wagon.type
+    true if @type == wagon.type
   end
 
   def wagon_minus(wagon)

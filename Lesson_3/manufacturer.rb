@@ -3,5 +3,5 @@ module Manufacturer
 
   protected
 
-  INITIAL_COMPANY_NAME = '-'
+  INITIAL_COMPANY_NAME = '-'.freeze
 end

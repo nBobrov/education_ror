@@ -1,10 +1,9 @@
 class PassWagon < Wagon
-
   attr_reader :seats_num, :available_seats_num, :occupied_seats_num
 
   def initialize(number, seats_num)
     super(number)
-    @seats_num = seats_num
+    @seats_num, @available_seats_num = seats_num
     @available_seats_num = seats_num
     @occupied_seats_num = 0
     validate!
@@ -23,8 +22,8 @@ class PassWagon < Wagon
 
   private
 
-  INITIAL_TYPE = 'Пассажирский'
-  SEATS_FORMAT = /^[1-9][0-9]*$/
+  INITIAL_TYPE = 'Пассажирский'.freeze
+  SEATS_FORMAT = /^[1-9][0-9]*$/.freeze
 
   attr_writer :available_seats_num, :occupied_seats_num
 

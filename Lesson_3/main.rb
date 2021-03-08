@@ -8,7 +8,28 @@ require_relative 'station'
 require_relative 'route'
 
 class App
-
+  MAIN_MENU = [{ name: 'Управлять станциям', method: 'menu_stations' },
+               { name: 'Управлять поездами', method: 'menu_trains' },
+               { name: 'Управлять маршрутами', method: 'menu_routes' },
+               { name: 'Выйти', method: 'exit' }].freeze
+  STATIONS_MENU = [{ name: 'Добавить станцию', method: 'menu_station_add' },
+                   { name: 'Посмотреть список станций', method: 'menu_stations_list' },
+                   { name: 'Посмотреть список поездов на станции', method: 'menu_station_trains_list' },
+                   { name: 'Назад', method: 'exit' }].freeze
+  TRAINS_MENU = [{ name: 'Добавить поезд', method: 'menu_train_add' },
+                 { name: 'Посмотреть список поездов', method: 'menu_trains_list' },
+                 { name: 'Назначить маршрут поезду', method: 'menu_train_route_assign' },
+                 { name: 'Посмотреть список вагонов поезда', method: 'menu_wagons_list' },
+                 { name: 'Добавить вагон к поезду', method: 'menu_train_wagon_add' },
+                 { name: 'Отцепить вагон от поезда', method: 'menu_train_wagon_delete' },
+                 { name: 'Переместить поезд по маршруту (вперед или назад)', method: 'menu_train_transfer' },
+                 { name: 'Занять место или объем в вагоне', method: 'menu_load_wagon' },
+                 { name: 'Назад', method: 'exit' }].freeze
+  ROUTES_MENU = [{ name: 'Создать новый маршрут', method: 'menu_route_add' },
+                 { name: 'Добавить станцию', method: 'menu_route_station_add' },
+                 { name: 'Удалить станцию', method: 'menu_route_station_delete' },
+                 { name: 'Посмотреть список маршрутов', method: 'menu_routes_list' },
+                 { name: 'Назад', method: 'exit' }].freeze
 
   def initialize
     @stations = []
@@ -20,182 +41,94 @@ class App
   end
 
   def main_menu
+    menu(MAIN_MENU)
+  end
 
+  def menu(menu_arr)
     loop do
-      puts 'Какое действие хотите выполнить?'
-      puts '__________________________________________________________________________'
-      puts ' 1 - Управлять станциями'
-      puts ' 2 - Управлять поездами'
-      puts ' 3 - Управлять маршрутами'
-      puts ' 4 - Выйти'
-      puts '__________________________________________________________________________'
+      menu_item = select_menu_item(menu_arr)
 
-      menu = gets.chomp.to_i
+      next unless menu_item
+      break if menu_item[:method] == 'exit'
 
-      case
-      when menu == 1
-        menu_stations
-      when menu == 2
-        menu_trains
-      when menu == 3
-        menu_routes
-      when menu == 4
-        break
-      end
+      execute_method(menu_item[:method])
     end
+  end
+
+  def select_menu_item(menu_arr)
+    puts 'Какое действие хотите выполнить?'
+    puts '__________________________________________________________________________'
+    menu_arr.each_with_index do |menu_item, index|
+      puts "#{index} - #{menu_item[:name]}"
+    end
+    puts '__________________________________________________________________________'
+
+    menu_arr[gets.chomp.to_i]
+  end
+
+  def execute_method(method)
+    send(method)
   end
 
   def menu_stations
-    loop do
-      puts 'Какое действие хотите выполнить?'
-      puts '__________________________________________________________________________'
-      puts ' 1 - Добавить станцию'
-      puts ' 2 - Посмотреть список станций'
-      puts ' 3 - Посмотреть список поездов на станции'
-      puts ' 4 - Назад'
-      puts ' 5 - Выйти'
-      puts '__________________________________________________________________________'
-
-      menu = gets.chomp.to_i
-
-      case
-      when menu == 1
-        menu_station_add
-      when menu == 2
-        menu_stations_list
-      when menu == 3
-        menu_station_trains_list
-      when menu == 4
-        main_menu
-      when menu == 5
-        break
-      end
-    end
+    menu(STATIONS_MENU)
   end
 
   def menu_trains
-    loop do
-      puts 'Какое действие хотите выполнить?'
-      puts '__________________________________________________________________________'
-      puts ' 1 - Добавить поезд'
-      puts ' 2 - Посмотреть список поездов'
-      puts ' 3 - Назначить маршрут поезду'
-      puts ' 4 - Посмотреть список вагонов поезда'
-      puts ' 5 - Добавить вагон к поезду'
-      puts ' 6 - Отцепить вагон от поезда'
-      puts ' 7 - Переместить поезд по маршруту (вперед или назад)'
-      puts ' 8 - Занять место или объем в вагоне'
-      puts ' 9 - Назад'
-      puts ' 10 - Выйти'
-      puts '__________________________________________________________________________'
-
-      menu = gets.chomp.to_i
-
-      case
-      when menu == 1
-        menu_train_add
-      when menu == 2
-        menu_trains_list
-      when menu == 3
-        menu_train_route_assign
-      when menu == 4
-        menu_wagons_list
-      when menu == 5
-        menu_train_wagon_add
-      when menu == 6
-        menu_train_wagon_delete
-      when menu == 7
-        menu_train_transfer
-      when menu == 8
-        menu_load_wagon
-      when menu == 9
-        main_menu
-      when menu == 10
-        break
-      end
-    end
+    menu(TRAINS_MENU)
   end
 
   def menu_routes
-    loop do
-      puts 'Какое действие хотите выполнить?'
-      puts '__________________________________________________________________________'
-      puts ' 1 - Создать новый маршрут'
-      puts ' 2 - Добавить станцию'
-      puts ' 3 - Удалить станцию'
-      puts ' 4 - Посмотреть список маршрутов'
-      puts ' 5 - Назад'
-      puts ' 6 - Выйти'
-      puts '__________________________________________________________________________'
-
-      menu = gets.chomp.to_i
-
-      case
-      when menu == 1
-        menu_route_add
-      when menu == 2
-        menu_route_station_add
-      when menu == 3
-        menu_route_station_delete
-      when menu == 4
-        menu_routes_list
-      when menu == 5
-        main_menu
-      when menu == 6
-        break
-      end
-    end
+    menu(ROUTES_MENU)
   end
 
   private
 
-  def menu_train_add
-    retry_counter ||= 0
-    puts 'Какой поезд хотите создать?'
-    puts ' 1 - Пассажирский'
-    puts ' 2 - Грузовой'
-    submenu = gets.chomp.to_i
+  TRAIN_ADD_MENU = [{ name: 'Добавить пассажирский поезд', method: 'pass_train_add' },
+                    { name: 'Добавить грузовой поезд', method: 'cargo_train_add' },
+                    { name: 'Назад', method: 'exit' }].freeze
 
-    case
-    when submenu == 1
-      puts 'Введите номер поезда'
-      @trains << PassengerTrain.new(gets.chomp)
-    when submenu == 2
-      puts 'Введите номер поезда'
-      @trains << CargoTrain.new(gets.chomp)
-    end
+  def menu_train_add
+    menu(TRAIN_ADD_MENU)
   rescue ArgumentError => e
     puts e.message
-    if retry_input?(retry_counter, 3)
+    if retry_input?(retry_counter ||= 0, 3)
       retry_counter = retry_input(retry_counter, 3)
       retry
     end
   end
 
+  def pass_train_add
+    puts 'Введите номер поезда'
+    @trains << PassengerTrain.new(gets.chomp)
+  end
+
+  def cargo_train_add
+    puts 'Введите номер поезда'
+    @trains << CargoTrain.new(gets.chomp)
+  end
+
   def menu_station_add
-    retry_counter ||= 0
     puts 'Введите название новой станции:'
     @stations << Station.new(gets.chomp)
   rescue ArgumentError => e
     puts e.message
-    if retry_input?(retry_counter, 3)
+    if retry_input?(retry_counter ||= 0, 3)
       retry_counter = retry_input(retry_counter, 3)
       retry
     end
   end
 
   def menu_route_add
-    retry_counter ||= 0
     menu_stations_list
 
-    puts 'Введите название начальной станции маршрута:'
-    station_start = @stations[gets.chomp.to_i]
-    puts 'Введите название конечной станции маршрута:'
-    station_end = @stations[gets.chomp.to_i]
+    station_start = station_select('Введите название начальной станции маршрута:')
+    station_end = station_select('Введите название конечной станции маршрута:')
+
     @routes << Route.new(station_start, station_end)
   rescue ArgumentError => e
     puts e.message
-    if retry_input?(retry_counter, 3)
+    if retry_input?(retry_counter ||= 0, 3)
       retry_counter = retry_input(retry_counter, 3)
       retry
     end
@@ -203,12 +136,10 @@ class App
 
   def menu_route_station_add
     menu_routes_list
-    puts 'Укажиете маршрут:'
-    route = @routes[gets.chomp.to_i]
+    route = route_select
 
     menu_stations_list
-    puts 'Укажиете стацию:'
-    station = @stations[gets.chomp.to_i]
+    station = station_select
 
     if route.exists?(station)
       puts 'Указанная станции уже имеется в маршруте'
@@ -217,15 +148,23 @@ class App
     end
   end
 
+  def route_select
+    puts 'Укажиете маршрут:'
+    @routes[gets.chomp.to_i]
+  end
+
+  def station_select(message = 'Укажиете стацию:')
+    puts message
+    @stations[gets.chomp.to_i]
+  end
+
   def menu_route_station_delete
     menu_routes_list
-    puts 'Укажиете маршрут:'
-    route = @routes[gets.chomp.to_i]
+    route = route_select
 
     puts 'Перечень станций маршрута:'
     stations_list(route.list)
-    puts 'Укажиете стацию:'
-    station = @stations[gets.chomp.to_i]
+    station = station_select
 
     if route.transit?(station)
       route.delete(station)
@@ -236,17 +175,16 @@ class App
 
   def menu_train_route_assign
     menu_trains_list
-    puts 'Укажиете поезд:'
-    train = @trains[gets.chomp.to_i]
+    train = train_select
 
     menu_routes_list
-    puts 'Укажиете маршрут:'
-    route = @routes[gets.chomp.to_i]
+    route = route_select
 
     train.assign_route(route)
   end
 
   def menu_train_wagon_add
+    menu_trains_list
     train = train_select do |train|
       unless train.train_stopped?
         puts 'Прицепка вагонов может осуществляться только если поезд не движется.'
@@ -258,7 +196,6 @@ class App
   end
 
   def train_select(&block)
-    menu_trains_list
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
     yield(train) if block_given?
@@ -267,33 +204,41 @@ class App
   end
 
   def train_wagon_add(train)
-    retry_counter ||= 0
-    puts 'Введите номер вагона'
-    wagon_number = gets.chomp
+    wagon_number = wagon_select
 
     if train.wagon_exists?(wagon_number)
       puts 'Указанный вагон уже прицеплен к поезду'
     else
-      case
-      when train.type == 'Пассажирский'
-        puts 'Введите количество мест в вагоне'
-        seats_num = gets.chomp
-        train.wagon_plus(PassWagon.new(wagon_number, seats_num))
-      when train.type == 'Грузовой'
-        puts 'Введите объем вагона'
-        capacity = gets.chomp
-        train.wagon_plus(CargoWagon.new(wagon_number, capacity))
-      end
+      train_wagon_pass_add(train, wagon_number) if train.type == PassWagon::INITIAL_TYPE
+      train_wagon_cargo_add(train, wagon_number) if train.type == CargoWagon::INITIAL_TYPE
     end
   rescue ArgumentError => e
     puts e.message
-    if retry_input?(retry_counter, 3)
+    if retry_input?(retry_counter ||= 0, 3)
       retry_counter = retry_input(retry_counter, 3)
       retry
     end
   end
 
+  def wagon_select
+    puts 'Введите номер вагона'
+    gets.chomp
+  end
+
+  def train_wagon_pass_add(train, wagon_number)
+    puts 'Введите количество мест в вагоне'
+    seats_num = gets.chomp
+    train.wagon_plus(PassWagon.new(wagon_number, seats_num))
+  end
+
+  def train_wagon_cargo_add(train, wagon_number)
+    puts 'Введите объем вагона'
+    capacity = gets.chomp
+    train.wagon_plus(CargoWagon.new(wagon_number, capacity))
+  end
+
   def menu_train_wagon_delete
+    menu_trains_list
     train = train_select do |train|
       unless train.train_stopped?
         puts 'Отцепка вагонов может осуществляться только если поезд не движется.'
@@ -306,29 +251,28 @@ class App
   end
 
   def menu_wagons_list
+    menu_trains_list
     train = train_select
+
     train_wagon_view(train) if train
   end
 
   def train_wagon_view(train)
-    i = 0
-    train.wagons.each do |wagon|
-      case
-      when wagon.type == PassWagon::INITIAL_TYPE
-        puts "#{i} - #{wagon.type} вагон № #{wagon.number}, свободных мест: #{wagon.available_seats_num}, занятых мест #{wagon.occupied_seats_num}"
-      when wagon.type == CargoWagon::INITIAL_TYPE
-        puts "#{i} - #{wagon.type} вагон №#{wagon.number}, свободный объем: #{wagon.available_capacity}, занятый объем: #{wagon.occupied_capacity}"
-      end
-      i += 1
+    train.wagons.each_with_index do |wagon, index|
+      general_info = "#{index} - #{wagon.type} вагон № #{wagon.number}"
+      puts "#{general_info}, свободных мест: #{wagon.available_seats_num}, занятых мест #{wagon.occupied_seats_num}" if wagon.type == PassWagon::INITIAL_TYPE
+      puts "#{general_info}, свободный объем: #{wagon.available_capacity}, занятый объем: #{wagon.occupied_capacity}" if wagon.type == CargoWagon::INITIAL_TYPE
     end
   end
 
   def train_wagon_delete(train)
+    train.wagon_minus(train_wagon_select(train))
+  end
+
+  def train_wagon_select(train)
     train_wagon_view(train)
     puts 'Выберите вагон:'
-    wagon = train.wagons[gets.chomp.to_i]
-
-    train.wagon_minus(wagon)
+    train.wagons[gets.chomp.to_i]
   end
 
   def menu_stations_list
@@ -349,20 +293,20 @@ class App
     trains_list(@trains)
   end
 
-  def trains_list (trains)
+  def trains_list(trains)
     i = 0
     trains.each do |train|
-      puts "#{i} - #{train.type} поезд: #{train.number} (#{train.company_name}). Количество вагонов: #{train.wagons.length()}"
+      puts "#{i} - #{train.type} поезд: #{train.number} (#{train.company_name}). Количество вагонов: #{train.wagons.length}"
       i += 1
     end
   end
 
   def menu_routes_list
     puts 'Перечень маршрутов:'
-    routes_list (@routes)
+    routes_list(@routes)
   end
 
-  def routes_list (routes)
+  def routes_list(routes)
     i = 0
     routes.each do |route|
       puts "#{i} - #{route.list[0].name} - #{route.list[route.list.size - 1].name}"
@@ -380,8 +324,7 @@ class App
 
   def menu_train_transfer
     menu_trains_list
-    puts 'Укажиете поезд:'
-    train = @trains[gets.chomp.to_i]
+    train = train_select
 
     puts "Текущая станция: #{train.station_current.name}"
     puts 'Куда переместить поезд:'
@@ -389,25 +332,30 @@ class App
     puts '2 - Назазд'
 
     submenu = gets.chomp.to_i
-    case
-    when submenu == 1
-      if !train.station_next
-        puts 'Поезд находится на конечной станции'
-      else
-        train.transfer_forward
-        puts "Поезд прибыл на станцию: #{train.station_current.name}"
-      end
-    when submenu == 2
-      if !train.station_prev
-        puts 'Поезд находится на конечной станции'
-      else
-        train.transfer_back
-        puts "Поезд прибыл на станцию: #{train.station_current.name}"
-      end
+    train_transfer_next(train) if submenu == 1
+    train_transfer_back(train) if submenu == 2
+  end
+
+  def train_transfer_next(train)
+    if !train.station_next
+      puts 'Поезд находится на конечной станции'
+    else
+      train.transfer_forward
+      puts "Поезд прибыл на станцию: #{train.station_current.name}"
+    end
+  end
+
+  def train_transfer_back(train)
+    if !train.station_prev
+      puts 'Поезд находится на конечной станции'
+    else
+      train.transfer_back
+      puts "Поезд прибыл на станцию: #{train.station_current.name}"
     end
   end
 
   def menu_load_wagon
+    menu_trains_list
     train = train_select do |train|
       unless train.train_stopped?
         puts 'Загрузка вагонов может осуществляться только если поезд не движется.'
@@ -419,27 +367,29 @@ class App
   end
 
   def wagon_load(train)
-    train_wagon_view(train)
-    puts 'Выберите вагон:'
-    wagon = train.wagons[gets.chomp.to_i]
+    wagon = train_wagon_select(train)
 
-    case
-    when train.type == 'Пассажирский'
-      if wagon.available_seats_num?
-        wagon.take_seat
-        puts "Место занято успешно. Свободных мест в вагоне: #{wagon.available_seats_num}"
-      else
-        puts 'В вагоне недостаточно места'
-      end
-    when train.type == 'Грузовой'
-      puts 'Введите объем груза'
-      value = gets.chomp.to_i
-      if wagon.available_capacity?(value)
-        wagon.load_capacity(value)
-        puts "Груз загружен успешно. Свободный объем в вагоне: #{wagon.available_capacity}"
-      else
-        puts 'В вагоне недостаточно места'
-      end
+    pass_wagon_load(wagon) if train.type == 'Пассажирский'
+    cargo_wagon_load(wagon) if train.type == 'Грузовой'
+  end
+
+  def pass_wagon_load(wagon)
+    if wagon.available_seats_num?
+      wagon.take_seat
+      puts "Место занято успешно. Свободных мест в вагоне: #{wagon.available_seats_num}"
+    else
+      puts 'В вагоне недостаточно места'
+    end
+  end
+
+  def cargo_wagon_load(wagon)
+    puts 'Введите объем груза'
+    value = gets.chomp.to_i
+    if wagon.available_capacity?(value)
+      wagon.load_capacity(value)
+      puts "Груз загружен успешно. Свободный объем в вагоне: #{wagon.available_capacity}"
+    else
+      puts 'В вагоне недостаточно места'
     end
   end
 
@@ -461,7 +411,6 @@ class App
 
     @trains << CargoTrain.new('PPГ-01')
     @trains << PassengerTrain.new('PPП01')
-
 
     @trains[0].company_name = 'Siemens Velaro'
     @trains[1].company_name = 'Maglev'

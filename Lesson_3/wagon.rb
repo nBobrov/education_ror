@@ -5,7 +5,7 @@ class Wagon
   include Manufacturer
   include Validation
 
-  NUMBER_FORMAT = /^[a-zа-я\d]{3}-[a-zа-я\d]{2}$/i
+  NUMBER_FORMAT = /^[a-zа-я\d]{3}-[a-zа-я\d]{2}$/i.freeze
 
   attr_reader :number, :type
 

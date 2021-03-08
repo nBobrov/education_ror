@@ -1,7 +1,5 @@
 class CargoTrain < Train
-
   private
 
-  INITIAL_TYPE = 'Грузовой'
-
+  INITIAL_TYPE = 'Грузовой'.freeze
 end
