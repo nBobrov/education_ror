@@ -5,22 +5,18 @@ class Station
   include InstanceCounter
   include Validation
 
-  NAME_FORMAT = /^[а-яa-z0-9\-\s]{2,}$/i.freeze
-
   attr_reader :name, :trains
-
-  @@all = []
 
   def initialize(name)
     @name = name
     @trains = []
     validate!
     register_instance
-    @@all << self
+    self.class.all << self
   end
 
   def self.all
-    @@all
+    @all ||= []
   end
 
   def take(train_arriving)
@@ -45,9 +41,11 @@ class Station
 
   private
 
+  NAME_FORMAT = /^[а-яa-z0-9\-\s]{2,}$/i.freeze
+
   def validate!
     raise ArgumentError, 'Необходимо указать наименование станции' if name.empty?
     raise ArgumentError, 'Это наименование слишком короткое' if name.length < 2
-    raise ArgumentError, 'Наименование содержит запрещенные символы. Допустимые символы: буквы кириллического и латинского алфавита, а также пробел и -' if name !~ NAME_FORMAT
+    raise ArgumentError, 'Наименование содержит запрещенные символы. Допустимые символы: буквы кириллического и латинского алфавита, а также пробел и -' unless name =~ NAME_FORMAT
   end
 end

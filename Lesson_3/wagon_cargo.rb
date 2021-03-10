@@ -1,6 +1,8 @@
 class CargoWagon < Wagon
   attr_reader :capacity, :available_capacity, :occupied_capacity
 
+  INITIAL_TYPE = 'Грузовой'.freeze
+
   def initialize(number, capacity)
     super(number)
     @capacity = capacity
@@ -22,13 +24,12 @@ class CargoWagon < Wagon
 
   private
 
-  INITIAL_TYPE = 'Грузовой'.freeze
   CAPACITY_FORMAT = /^[1-9][0-9]*$/.freeze
 
   attr_writer :available_capacity, :occupied_capacity
 
   def validate!
     super
-    raise ArgumentError, 'Неверный объем. Необходимо указать положительное число' if capacity.to_s !~ CAPACITY_FORMAT
+    raise ArgumentError, 'Неверный объем. Необходимо указать положительное число' unless capacity.to_s =~ CAPACITY_FORMAT
   end
 end

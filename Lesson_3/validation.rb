@@ -2,7 +2,7 @@ module Validation
   def valid?
     validate!
     true
-  rescue
+  rescue ArgumentError
     false
   end
 end

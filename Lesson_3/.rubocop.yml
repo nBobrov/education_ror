@@ -1,23 +1,17 @@
-module InstanceCounter
-  def self.included(base)
-    base.extend ClassMethods
-    base.send :include, InstanceMethods
-  end
+AllCops:
+  NewCops: enable
 
-  module ClassMethods
-    attr_writer :instances
+Style/Documentation:
+  Enabled: false
 
-    def instances
-      @instances ||= 0
-    end
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
-  end
+Metrics/MethodLength:
+  Max: 30
 
-  module InstanceMethods
-    private
+Metrics/ClassLength:
+  Max: 400
 
-    def register_instance
-      self.class.instances += 1
-    end
-  end
-end
+Layout/LineLength:
+  Max: 200

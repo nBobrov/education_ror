@@ -18,6 +18,6 @@ class Wagon
   private
 
   def validate!
-    raise ArgumentError, 'Неверный формат номера' if number !~ NUMBER_FORMAT
+    raise ArgumentError, 'Неверный формат номера' unless number =~ NUMBER_FORMAT
   end
 end

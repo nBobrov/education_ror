@@ -185,17 +185,17 @@ class App
 
   def menu_train_wagon_add
     menu_trains_list
-    train = train_select do |train|
-      unless train.train_stopped?
+    train = train_select do |train_check|
+      unless train_check.train_stopped?
         puts 'Прицепка вагонов может осуществляться только если поезд не движется.'
         return
       end
-      train
+      train_check
     end
     train_wagon_add(train) if train
   end
 
-  def train_select(&block)
+  def train_select
     puts 'Укажиете поезд:'
     train = @trains[gets.chomp.to_i]
     yield(train) if block_given?
@@ -239,12 +239,12 @@ class App
 
   def menu_train_wagon_delete
     menu_trains_list
-    train = train_select do |train|
-      unless train.train_stopped?
+    train = train_select do |train_check|
+      unless train_check.train_stopped?
         puts 'Отцепка вагонов может осуществляться только если поезд не движется.'
         return
       end
-      train
+      train_check
     end
 
     train_wagon_delete(train) if train
@@ -337,31 +337,31 @@ class App
   end
 
   def train_transfer_next(train)
-    if !train.station_next
-      puts 'Поезд находится на конечной станции'
-    else
+    if train.station_next
       train.transfer_forward
       puts "Поезд прибыл на станцию: #{train.station_current.name}"
+    else
+      puts 'Поезд находится на конечной станции'
     end
   end
 
   def train_transfer_back(train)
-    if !train.station_prev
-      puts 'Поезд находится на конечной станции'
-    else
+    if train.station_prev
       train.transfer_back
       puts "Поезд прибыл на станцию: #{train.station_current.name}"
+    else
+      puts 'Поезд находится на конечной станции'
     end
   end
 
   def menu_load_wagon
     menu_trains_list
-    train = train_select do |train|
-      unless train.train_stopped?
+    train = train_select do |train_check|
+      unless train_check.train_stopped?
         puts 'Загрузка вагонов может осуществляться только если поезд не движется.'
         return
       end
-      train
+      train_check
     end
     wagon_load(train) if train
   end
@@ -395,7 +395,7 @@ class App
 
   def retry_input(counter, limit)
     puts "Повторите попытку! Попыток осталось: #{limit - counter}"
-    counter += 1
+    counter + 1
   end
 
   def retry_input?(counter, limit)
@@ -403,46 +403,59 @@ class App
   end
 
   def seed
-    @stations << Station.new('Москва Казанская')
-    @stations << Station.new('Рязань-2')
-    @stations << Station.new('Ростов-Главный')
-    @stations << Station.new('Топи')
-    @stations << Station.new('Симферополь')
-
-    @trains << CargoTrain.new('PPГ-01')
-    @trains << PassengerTrain.new('PPП01')
-
-    @trains[0].company_name = 'Siemens Velaro'
-    @trains[1].company_name = 'Maglev'
-
-    @routes << Route.new(@stations[0], @stations[4])
-    @routes[0].add(@stations[1])
-    @routes[0].add(@stations[2])
-    @routes[0].add(@stations[3])
-
-    @routes << Route.new(@stations[0], @stations[1])
-
-    @trains[0].assign_route(@routes[0])
-    @trains[1].assign_route(@routes[0])
-
-    @trains[0].wagon_plus(CargoWagon.new('Ваг-Г1', 1000))
-    @trains[0].wagon_plus(CargoWagon.new('Ваг-Г2', 5000))
-
-    @trains[0].wagons[0].company_name = 'Shinkansen'
-    @trains[0].wagons[1].company_name = 'Shinkansen'
-
-    @trains[1].wagon_plus(PassWagon.new('VaG-P1', 10))
-    @trains[1].wagon_plus(PassWagon.new('VaG-P2', 10))
-    @trains[1].wagon_plus(PassWagon.new('Ваг-P1', 5))
-
-    @trains[1].wagons[2].take_seat
-    @trains[1].wagons[2].take_seat
-    @trains[1].wagons[2].take_seat
-    @trains[1].wagons[2].take_seat
-    @trains[1].wagons[2].take_seat
+    seed_stations
+    seed_routes
+    seed_trains
+    seed_wagons_cargo
+    seed_wagons_pass
 
     @trains[0].speed = 1000
   end
+end
+
+def seed_stations
+  @stations << Station.new('Москва Казанская')
+  @stations << Station.new('Рязань-2')
+  @stations << Station.new('Ростов-Главный')
+  @stations << Station.new('Топи')
+  @stations << Station.new('Симферополь')
+end
+
+def seed_trains
+  @trains << CargoTrain.new('PPГ-01')
+  @trains << PassengerTrain.new('PPП01')
+
+  @trains[0].company_name = 'Siemens Velaro'
+  @trains[1].company_name = 'Maglev'
+
+  @trains[0].assign_route(@routes[0])
+  @trains[1].assign_route(@routes[0])
+end
+
+def seed_routes
+  @routes << Route.new(@stations[0], @stations[4])
+  @routes[0].add(@stations[1])
+  @routes[0].add(@stations[2])
+  @routes[0].add(@stations[3])
+
+  @routes << Route.new(@stations[0], @stations[1])
+end
+
+def seed_wagons_pass
+  @trains[1].wagon_plus(PassWagon.new('VaG-P1', 10))
+  @trains[1].wagon_plus(PassWagon.new('VaG-P2', 10))
+  @trains[1].wagon_plus(PassWagon.new('Ваг-P1', 5))
+
+  @trains[1].wagons[2].take_seat
+  @trains[1].wagons[2].take_seat
+end
+
+def seed_wagons_cargo
+  @trains[0].wagon_plus(CargoWagon.new('Ваг-Г1', 1000))
+  @trains[0].wagon_plus(CargoWagon.new('Ваг-Г2', 5000))
+
+  @trains[0].wagons[0].company_name = 'Shinkansen'
+  @trains[0].wagons[1].company_name = 'Shinkansen'
 end
 
 App.new

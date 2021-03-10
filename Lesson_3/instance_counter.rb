@@ -10,7 +10,6 @@ module InstanceCounter
     def instances
       @instances ||= 0
     end
-
   end
 
   module InstanceMethods
