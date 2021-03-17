@@ -15,7 +15,7 @@ module Accessors
 
   def add_attr_getter(attr_name)
     self.class.class_eval do
-      define_method(attr_name) { puts attr_name; instance_variable_get("@#{attr_name}") }
+      define_method(attr_name) { instance_variable_get("@#{attr_name}") }
     end
   end
 
