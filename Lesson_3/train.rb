@@ -24,7 +24,7 @@ class Train
     @speed = 0
     @wagons = []
     @company_name = Manufacturer::INITIAL_COMPANY_NAME
-    validate!
+    start_validation!
     register_instance
   end
 
@@ -57,7 +57,7 @@ class Train
   def transfer_forward
     return unless station_next?
 
-    station_current.send(self)
+    station_current.transfer(self)
     @station_index += 1
     station_current.take(self)
   end
@@ -65,7 +65,7 @@ class Train
   def transfer_back
     return unless station_prev?
 
-    station_current.send(self)
+    station_current.transfer(self)
     @station_index -= 1
     station_current.take(self)
   end
@@ -100,7 +100,10 @@ class Train
 
   private
 
-  def validate!
-    raise ArgumentError, 'Неверный формат номера' unless number =~ NUMBER_FORMAT
+  def start_validation!
+    self.class.validate :number, :presence
+    self.class.validate :number, :format, NUMBER_FORMAT
+    self.class.validate :number, :type, String
+    validate!
   end
 end

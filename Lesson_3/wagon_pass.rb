@@ -8,7 +8,7 @@ class PassWagon < Wagon
     @seats_num = seats_num
     @available_seats_num = seats_num
     @occupied_seats_num = 0
-    validate!
+    start_validation!
   end
 
   def take_seat
@@ -28,8 +28,11 @@ class PassWagon < Wagon
 
   attr_writer :available_seats_num, :occupied_seats_num
 
-  def validate!
+  def start_validation!
     super
-    raise ArgumentError, 'Неверное количество мест. Необходимо указать положительное число' unless seats_num.to_s =~ SEATS_FORMAT
+    self.class.validate :seats_num, :presence
+    self.class.validate :seats_num, :format, SEATS_FORMAT
+    self.class.validate :seats_num, :type, Integer
+    validate!
   end
 end

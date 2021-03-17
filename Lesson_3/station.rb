@@ -7,6 +7,12 @@ class Station
 
   attr_reader :name, :trains
 
+  NAME_FORMAT = /^[а-яa-z0-9\-\s]{2,}$/i.freeze
+
+  validate :name, :presence
+  validate :name, :format, NAME_FORMAT
+  validate :name, :type, String
+
   def initialize(name)
     @name = name
     @trains = []
@@ -27,7 +33,7 @@ class Station
     true if @trains.find { |train| train.number == train_arriving.number }
   end
 
-  def send(train_departing)
+  def transfer(train_departing)
     @trains.delete(train_departing)
   end
 
@@ -37,15 +43,5 @@ class Station
 
   def send_train_to_block(&block)
     @trains.each(&block) if block_given?
-  end
-
-  private
-
-  NAME_FORMAT = /^[а-яa-z0-9\-\s]{2,}$/i.freeze
-
-  def validate!
-    raise ArgumentError, 'Необходимо указать наименование станции' if name.empty?
-    raise ArgumentError, 'Это наименование слишком короткое' if name.length < 2
-    raise ArgumentError, 'Наименование содержит запрещенные символы. Допустимые символы: буквы кириллического и латинского алфавита, а также пробел и -' unless name =~ NAME_FORMAT
   end
 end

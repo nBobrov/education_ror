@@ -99,17 +99,19 @@ class App
   end
 
   def pass_train_add
-    puts 'Введите номер поезда'
+    puts 'Введите номер поезда в формате XXX-XX или XXXXX, где X-буква латинского или кириллического алфавита, или целое число:'
     @trains << PassengerTrain.new(gets.chomp)
   end
 
   def cargo_train_add
-    puts 'Введите номер поезда'
+    puts 'Введите номер поезда в формате XXX-XX или XXXXX, где X-буква латинского или кириллического алфавита, или целое число:'
     @trains << CargoTrain.new(gets.chomp)
   end
 
   def menu_station_add
-    puts 'Введите название новой станции:'
+    puts 'Введите название новой станции в формате строки:'
+    puts 'Минимальная длина строки - 2 символа.'
+    puts 'Допустимые символы: буквы латинского и кириллического алфавита, целое число, символ "-" и пробел.'
     @stations << Station.new(gets.chomp)
   rescue ArgumentError => e
     puts e.message
@@ -122,8 +124,8 @@ class App
   def menu_route_add
     menu_stations_list
 
-    station_start = station_select('Введите название начальной станции маршрута:')
-    station_end = station_select('Введите название конечной станции маршрута:')
+    station_start = station_select('Укажите начальнцю станцию маршрута:')
+    station_end = station_select('Укажите конечную станцию маршрута:')
 
     @routes << Route.new(station_start, station_end)
   rescue ArgumentError => e
@@ -221,19 +223,19 @@ class App
   end
 
   def wagon_select
-    puts 'Введите номер вагона'
+    puts 'Введите номер вагона в формате XXX-XX, где X-буква латинского или кириллического алфавита, или целое число:'
     gets.chomp
   end
 
   def train_wagon_pass_add(train, wagon_number)
-    puts 'Введите количество мест в вагоне'
-    seats_num = gets.chomp
+    puts 'Введите количество мест в вагоне (положительное число):'
+    seats_num = gets.chomp.to_i
     train.wagon_plus(PassWagon.new(wagon_number, seats_num))
   end
 
   def train_wagon_cargo_add(train, wagon_number)
-    puts 'Введите объем вагона'
-    capacity = gets.chomp
+    puts 'Введите объем вагона (положительное число):'
+    capacity = gets.chomp.to_i
     train.wagon_plus(CargoWagon.new(wagon_number, capacity))
   end
 

@@ -17,7 +17,9 @@ class Wagon
 
   private
 
-  def validate!
-    raise ArgumentError, 'Неверный формат номера' unless number =~ NUMBER_FORMAT
+  def start_validation!
+    self.class.validate :number, :presence
+    self.class.validate :number, :format, NUMBER_FORMAT
+    self.class.validate :number, :type, String
   end
 end

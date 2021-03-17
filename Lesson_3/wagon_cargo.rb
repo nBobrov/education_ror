@@ -8,7 +8,7 @@ class CargoWagon < Wagon
     @capacity = capacity
     @available_capacity = capacity
     @occupied_capacity = 0
-    validate!
+    start_validation!
   end
 
   def load_capacity(value)
@@ -28,8 +28,11 @@ class CargoWagon < Wagon
 
   attr_writer :available_capacity, :occupied_capacity
 
-  def validate!
+  def start_validation!
     super
-    raise ArgumentError, 'Неверный объем. Необходимо указать положительное число' unless capacity.to_s =~ CAPACITY_FORMAT
+    self.class.validate :capacity, :presence
+    self.class.validate :capacity, :format, CAPACITY_FORMAT
+    self.class.validate :capacity, :type, Integer
+    validate!
   end
 end
